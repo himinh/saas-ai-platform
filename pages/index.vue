@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const user = useSupabaseUser();
+</script>
 
 <template>
 	<div>
-		<h1></h1>
+		{{ user }}
 	</div>
 </template>

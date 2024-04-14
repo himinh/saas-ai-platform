@@ -21,13 +21,13 @@ const onCreateCourse = () => {};
 			<UForm
 				:schema="createCourseSchema"
 				:state="formState"
-				@submit="onCreateCourse"
 				class="my-8 space-y-8"
+				@submit="onCreateCourse"
 			>
 				<UFormGroup label="Course Title" name="title">
 					<UInput
-						class="border-0"
 						v-model="formState.title"
+						class="border-0"
 						placeholder="E.g. Web Development"
 					/>
 				</UFormGroup>

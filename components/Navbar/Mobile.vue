@@ -1,29 +1,18 @@
-<script setup lang="ts">
-const isOpen = ref(false);
-</script>
+<script setup lang="ts"></script>
 
 <template>
-	<div class="md:hidden">
-		<UButton
-			icon="i-lucide-menu"
-			size="md"
-			class="cursor-pointer"
-			variant="ghost"
-			color="gray"
-			@click="isOpen = true"
-		/>
+	<Sheet>
+		<SheetTrigger as-child>
+			<Button
+				variant="outline"
+				class="pr-4 transition hover:opacity-75 md:hidden"
+			>
+				<Icon name="lucide:menu" />
+			</Button>
+		</SheetTrigger>
 
-		<USlideover v-model="isOpen" side="left" :transition="true">
-			<UButton
-				color="gray"
-				variant="ghost"
-				icon="i-heroicons-x-mark-20-solid"
-				class="absolute right-0 my-2 mr-2"
-				@click="isOpen = false"
-			/>
-			<Sidebar />
-		</USlideover>
-	</div>
+		<SheetContent side="left" class="bg-white p-0"> </SheetContent>
+	</Sheet>
 </template>
 
 <style lang="css" scoped></style>
