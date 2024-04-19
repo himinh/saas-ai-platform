@@ -1,35 +1,23 @@
 <script setup lang="ts">
-import type { ChatCompletionRequestMessage } from "~/types/message.type";
+import type { AudioResponse } from "~/types/message.type";
 
 const proModalStore = useProModal();
 const prompt = ref("");
 const isLoading = ref(false);
-const messages = ref<ChatCompletionRequestMessage[]>([]);
+const music = ref<string>();
 
 const submitForm = async () => {
 	isLoading.value = true;
-	const userMessage: ChatCompletionRequestMessage = {
-		role: "user",
-		content: prompt.value,
-	};
 
-	const newMessages = [...messages.value, userMessage];
-	const { data, error } = await useFetch("/api/conversation", {
+	const { data, error } = await useFetch<AudioResponse>("/api/music", {
 		method: "POST",
 		body: {
-			messages: newMessages,
+			prompt: prompt.value,
 		},
 	});
 
 	if (data.value) {
-		messages.value = [
-			...messages.value,
-			userMessage,
-			{
-				content: data.value.content as string,
-				role: "assistant",
-			},
-		];
+		music.value = data.value.audio;
 
 		await refreshNuxtData("userData");
 	}
@@ -49,11 +37,11 @@ const submitForm = async () => {
 	<div>
 		<!-- === Heading === -->
 		<Heading
-			title="Conversation"
-			description="Our most advance conversation model."
-			icon="lucide:message-square"
-			icon-color="text-violet-500"
-			bg-color="bg-violet-500/10"
+			title="Music Generation"
+			description="Turn your prompt into music."
+			icon="lucide:music"
+			icon-color="text-emerald-500"
+			bg-color="bg-emerald-500/10"
 		/>
 
 		<!-- === Main === -->
@@ -68,7 +56,7 @@ const submitForm = async () => {
 						<input
 							v-model="prompt"
 							type="text"
-							placeholder="How do I calculate the radius of a circle?"
+							placeholder="A funky sound"
 							class="w-full border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
 						/>
 					</div>
@@ -93,28 +81,12 @@ const submitForm = async () => {
 			</div>
 
 			<!-- === Empty === -->
-			<Empty
-				v-if="!messages.length && !isLoading"
-				label="No conversation found"
-			/>
+			<Empty v-if="!music && !isLoading" label="No music generated." />
 
 			<!-- === Content === -->
-			<div class="flex flex-col-reverse gap-y-4">
-				<div
-					v-for="(message, index) in messages"
-					:key="index"
-					class="flex w-full items-center gap-x-2 rounded-lg p-8"
-					:class="[
-						{ 'border border-black/10 bg-white': message.role === 'user' },
-						{ 'bg-slate-20': message.role === 'assistant' },
-					]"
-				>
-					<UserAvatar v-if="message.role === 'user'" />
-					<BotAvatar v-else />
-
-					<p class="text-sm">{{ message.content }}</p>
-				</div>
-			</div>
+			<audio v-if="music" controls class="mt-8 w-full">
+				<source :src="music" />
+			</audio>
 		</div>
 	</div>
 </template>

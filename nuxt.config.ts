@@ -42,6 +42,7 @@ export default defineNuxtConfig({
 		app: {},
 		public: {},
 		openaiKey: "",
+		replicateKey: "",
 	},
 
 	// ts

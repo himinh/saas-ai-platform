@@ -1,29 +1,29 @@
-import OpenAI from "openai";
+import Replicate from "replicate";
 import { User } from "~/server/types";
 import { checkApiLimit, incrementApiLimit, protectRoute } from "~/server/utils";
-const config = useRuntimeConfig();
 
-const openai = new OpenAI({
-	apiKey: config.openaiKey,
+const config = useRuntimeConfig();
+const replicate = new Replicate({
+	auth: config.replicateKey,
 });
 
 export default defineEventHandler(async (event) => {
 	await protectRoute(event);
 	const user = event.context.user as User;
 
-	const { messages } = await readBody(event);
+	const { prompt } = await readBody(event);
 
-	if (!openai.apiKey) {
+	if (!replicate.auth) {
 		throw createError({
 			statusCode: 500,
-			statusMessage: "OpenAI key not configured",
+			statusMessage: "Replicate key not configured",
 		});
 	}
 
-	if (!messages) {
+	if (!prompt) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: "Messages is required",
+			statusMessage: "Prompt is required",
 		});
 	}
 
@@ -36,12 +36,14 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	const response = await openai.chat.completions.create({
-		model: "gpt-3.5-turbo",
-		messages,
+	const model =
+		"riffusion/riffusion:8cf61ea6c56afd61d8f5b9ffd14d7c216c0a93844ce2d82ac1c9ecc9c7f24e05";
+
+	const response = await replicate.run(model, {
+		input: { prompt_a: prompt },
 	});
 
 	await incrementApiLimit(user.id);
 
-	return response.choices[0].message;
+	return response;
 });

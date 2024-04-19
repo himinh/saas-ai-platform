@@ -4,3 +4,4 @@ node_modules
 dist
 public
 components/ui
+pnpm-lock.yaml

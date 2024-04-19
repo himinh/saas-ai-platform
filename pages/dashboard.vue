@@ -32,7 +32,6 @@ import { tools } from "~/utils/tools";
 
 				<Icon name="lucide:arrow-right" class="h-5 w-5" />
 			</div>
-			``
 		</div>
 	</div>
 </template>

@@ -1,29 +1,29 @@
-import OpenAI from "openai";
+import Replicate from "replicate";
 import { User } from "~/server/types";
 import { checkApiLimit, incrementApiLimit, protectRoute } from "~/server/utils";
-const config = useRuntimeConfig();
 
-const openai = new OpenAI({
-	apiKey: config.openaiKey,
+const config = useRuntimeConfig();
+const replicate = new Replicate({
+	auth: config.replicateKey,
 });
 
 export default defineEventHandler(async (event) => {
 	await protectRoute(event);
 	const user = event.context.user as User;
 
-	const { messages } = await readBody(event);
+	const { prompt } = await readBody(event);
 
-	if (!openai.apiKey) {
+	if (!replicate.auth) {
 		throw createError({
 			statusCode: 500,
-			statusMessage: "OpenAI key not configured",
+			statusMessage: "Replicate key not configured",
 		});
 	}
 
-	if (!messages) {
+	if (!prompt) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: "Messages is required",
+			statusMessage: "Prompt is required",
 		});
 	}
 
@@ -36,12 +36,14 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	const response = await openai.chat.completions.create({
-		model: "gpt-3.5-turbo",
-		messages,
+	const model =
+		"anotherjesse/zeroscope-v2-xl:9f747673945c62801b13b84701c783929c0ee784e4748ec062204894dda1a351";
+
+	const response = await replicate.run(model, {
+		input: { prompt },
 	});
 
 	await incrementApiLimit(user.id);
 
-	return response.choices[0].message;
+	return response;
 });

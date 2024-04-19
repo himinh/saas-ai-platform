@@ -1,35 +1,21 @@
 <script setup lang="ts">
-import type { ChatCompletionRequestMessage } from "~/types/message.type";
-
 const proModalStore = useProModal();
 const prompt = ref("");
 const isLoading = ref(false);
-const messages = ref<ChatCompletionRequestMessage[]>([]);
+const videos = ref<string[]>([]);
 
 const submitForm = async () => {
 	isLoading.value = true;
-	const userMessage: ChatCompletionRequestMessage = {
-		role: "user",
-		content: prompt.value,
-	};
 
-	const newMessages = [...messages.value, userMessage];
-	const { data, error } = await useFetch("/api/conversation", {
+	const { data, error } = await useFetch<string[]>("/api/video", {
 		method: "POST",
 		body: {
-			messages: newMessages,
+			prompt: prompt.value,
 		},
 	});
 
 	if (data.value) {
-		messages.value = [
-			...messages.value,
-			userMessage,
-			{
-				content: data.value.content as string,
-				role: "assistant",
-			},
-		];
+		videos.value = data.value;
 
 		await refreshNuxtData("userData");
 	}
@@ -49,11 +35,11 @@ const submitForm = async () => {
 	<div>
 		<!-- === Heading === -->
 		<Heading
-			title="Conversation"
-			description="Our most advance conversation model."
-			icon="lucide:message-square"
-			icon-color="text-violet-500"
-			bg-color="bg-violet-500/10"
+			title="Video Generation"
+			description="Turn your prompt into video."
+			icon="lucide:video"
+			icon-color="text-orange-500"
+			bg-color="bg-orange-500/10"
 		/>
 
 		<!-- === Main === -->
@@ -68,7 +54,7 @@ const submitForm = async () => {
 						<input
 							v-model="prompt"
 							type="text"
-							placeholder="How do I calculate the radius of a circle?"
+							placeholder="An astronaut riding a spaceship"
 							class="w-full border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
 						/>
 					</div>
@@ -93,26 +79,22 @@ const submitForm = async () => {
 			</div>
 
 			<!-- === Empty === -->
-			<Empty
-				v-if="!messages.length && !isLoading"
-				label="No conversation found"
-			/>
+			<Empty v-if="!videos.length && !isLoading" label="No video generated." />
 
 			<!-- === Content === -->
-			<div class="flex flex-col-reverse gap-y-4">
-				<div
-					v-for="(message, index) in messages"
-					:key="index"
-					class="flex w-full items-center gap-x-2 rounded-lg p-8"
-					:class="[
-						{ 'border border-black/10 bg-white': message.role === 'user' },
-						{ 'bg-slate-20': message.role === 'assistant' },
-					]"
-				>
-					<UserAvatar v-if="message.role === 'user'" />
-					<BotAvatar v-else />
-
-					<p class="text-sm">{{ message.content }}</p>
+			<div
+				v-if="videos.length"
+				class="grid w-full grid-cols-12 gap-2 rounded-lg border p-4"
+			>
+				<div class="col-span-12 lg:col-span-12">
+					<video
+						v-for="(video, index) in videos"
+						:key="index"
+						controls
+						class="mt-8 w-full rounded-lg border bg-black"
+					>
+						<source :src="video" />
+					</video>
 				</div>
 			</div>
 		</div>

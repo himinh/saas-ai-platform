@@ -1,5 +1,25 @@
 <script setup lang="ts">
+import { MAX_COUNT } from "~/constants";
+import type { User } from "~/server/types";
+
 const route = useRoute();
+const store = useProModal();
+
+const { data: user, pending } = useFetch<User & { apiCount: number }>(
+	"api/user",
+	{
+		method: "get",
+		key: "userData",
+	},
+);
+
+const progress = computed(() => {
+	if (user.value && !pending.value) {
+		return (user.value?.apiCount / MAX_COUNT) * 100;
+	}
+
+	return 0;
+});
 </script>
 
 <template>
@@ -10,7 +30,6 @@ const route = useRoute();
 				<div class="relative h-8 w-8">
 					<img src="/images/logo.svg" alt="Logo " />
 				</div>
-
 				<h1 class="text-2xl font-bold">MultiGenX</h1>
 			</NuxtLink>
 
@@ -34,6 +53,21 @@ const route = useRoute();
 		</div>
 
 		<!-- Counter -->
+		<div class="border-b border-t px-3">
+			<div class="border-0 bg-white/10">
+				<div class="px-2 py-6">
+					<div class="mb-4 space-y-4 text-center text-sm">
+						<p>{{ user?.apiCount || 0 }} / {{ MAX_COUNT }} Free Generations</p>
+						<Progress v-model="progress" class="w-full" />
+					</div>
+
+					<Button variant="premium" class="w-full" @click="store.onOpen">
+						Upgrade
+						<Icon name="lucide:zap" class="ml-2 h-4 w-4 fill-white" />
+					</Button>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 

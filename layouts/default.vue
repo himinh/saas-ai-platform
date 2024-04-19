@@ -13,6 +13,8 @@
 			<Navbar />
 			<slot />
 		</main>
+
+		<ProModal />
 	</div>
 </template>
 

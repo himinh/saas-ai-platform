@@ -1,5 +1,6 @@
 import OpenAI from "openai";
-import { protectRoute } from "~/server/utils";
+import { User } from "~/server/types";
+import { checkApiLimit, incrementApiLimit, protectRoute } from "~/server/utils";
 const config = useRuntimeConfig();
 
 const openai = new OpenAI({
@@ -7,8 +8,8 @@ const openai = new OpenAI({
 });
 
 export default defineEventHandler(async (event) => {
-	// TODO: Verify and Get User
 	await protectRoute(event);
+	const user = event.context.user as User;
 
 	const { prompt, amount = 1, resolution = "512x512" } = await readBody(event);
 
@@ -40,11 +41,22 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
+	const freeTrial = await checkApiLimit(user.id);
+
+	if (!freeTrial) {
+		throw createError({
+			statusCode: 403,
+			statusMessage: "Free trial has expired. Please upgrade to pro.",
+		});
+	}
+
 	const response = await openai.images.generate({
 		prompt,
 		n: parseInt(amount, 10),
 		size: resolution,
 	});
+
+	await incrementApiLimit(user.id);
 
 	return response.data;
 });

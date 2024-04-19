@@ -1,5 +1,7 @@
 import OpenAI from "openai";
-import { protectRoute } from "~/server/utils";
+import { User } from "~/server/types";
+import { checkApiLimit, incrementApiLimit, protectRoute } from "~/server/utils";
+
 const config = useRuntimeConfig();
 
 const openai = new OpenAI({
@@ -13,8 +15,8 @@ const instruction = {
 };
 
 export default defineEventHandler(async (event) => {
-	// TODO: Verify and Get User
 	await protectRoute(event);
+	const user = event.context.user as User;
 
 	const { messages } = await readBody(event);
 
@@ -32,10 +34,21 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
+	const freeTrial = await checkApiLimit(user.id);
+
+	if (!freeTrial) {
+		throw createError({
+			statusCode: 403,
+			statusMessage: "Free trial has expired. Please upgrade to pro.",
+		});
+	}
+
 	const response = await openai.chat.completions.create({
 		model: "gpt-3.5-turbo",
 		messages: [instruction, ...messages],
 	});
+
+	await incrementApiLimit(user.id);
 
 	return response.choices[0].message;
 });
