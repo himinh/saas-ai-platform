@@ -10,7 +10,7 @@
 		"postinstall": "nuxt prepare",
 		"prepare": "husky",
 		"clean": "rm -rf .nuxt dist .output",
-		"lint:js": "eslint --ext \".ts,.vue\" --ignore-path .eslintignore .",
+		"lint:js": "eslint --ext .ts,.vue --ignore-path .eslintignore .",
 		"lint:prettier": "prettier --check .",
 		"lint": "pnpm lint:js && pnpm lint:prettier",
 		"lint:fix": "prettier --write --list-different '**/*.{js,jsx,ts,tsx,vue}' --ignore-path .eslintignore && pnpm lint:js --fix",

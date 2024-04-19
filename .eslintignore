@@ -1,7 +1,26 @@
+# Nuxt dev/build outputs
 .output
+.data
 .nuxt
-node_modules
+.nitro
+.cache
 dist
-public
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
 components/ui
-pnpm-lock.yaml
