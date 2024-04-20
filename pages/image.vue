@@ -26,6 +26,9 @@ const submitForm = async () => {
 		},
 	});
 
+	isLoading.value = false;
+	prompt.value = "";
+
 	if (data.value) {
 		photos.value = data.value.map((item) => {
 			if (item.url) {
@@ -43,9 +46,6 @@ const submitForm = async () => {
 			proModalStore.onOpen();
 		}
 	}
-
-	isLoading.value = false;
-	prompt.value = "";
 };
 </script>
 

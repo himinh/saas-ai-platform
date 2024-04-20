@@ -1,7 +1,8 @@
 import { serverSupabaseUser } from "#supabase/server";
 import { PrismaClient } from "@prisma/client";
 import { H3Event } from "h3";
-import { MAX_COUNT } from "~/constants";
+import Stripe from "stripe";
+import { DAY_IN_MS, MAX_COUNT } from "~/constants";
 
 const prisma = new PrismaClient();
 
@@ -64,4 +65,34 @@ export const getApiLimitCount = async (userId: string) => {
 	if (!userApiLimit) return 0;
 
 	return userApiLimit.count;
+};
+
+const config = useRuntimeConfig();
+
+export const stripe = new Stripe(config.stripeSecret, {
+	apiVersion: "2024-04-10",
+	typescript: true,
+});
+
+export const absoluteUrl = (path: string) => {
+	return `${config.appUrl}${path}`;
+};
+
+export const isUserPro = async (userId: string) => {
+	const userSubscription = await prisma.userSubscription.findUnique({
+		where: {
+			userId,
+		},
+	});
+
+	if (!userSubscription) {
+		return false;
+	}
+
+	const isValid =
+		userSubscription.stripePriceId &&
+		userSubscription.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MS >
+			Date.now();
+
+	return !!isValid;
 };

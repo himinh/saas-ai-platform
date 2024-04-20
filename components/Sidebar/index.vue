@@ -20,6 +20,10 @@ const progress = computed(() => {
 
 	return 0;
 });
+
+const { data: isPro, pending: isLoading } = useFetch<boolean>(
+	"/api/stripe/checkStatus",
+);
 </script>
 
 <template>
@@ -53,7 +57,7 @@ const progress = computed(() => {
 		</div>
 
 		<!-- Counter -->
-		<div class="border-b border-t px-3">
+		<div v-if="!isPro && !isLoading" class="border-b border-t px-3">
 			<div class="border-0 bg-white/10">
 				<div class="px-2 py-6">
 					<div class="mb-4 space-y-4 text-center text-sm">

@@ -14,6 +14,9 @@ const submitForm = async () => {
 		},
 	});
 
+	isLoading.value = false;
+	prompt.value = "";
+
 	if (data.value) {
 		videos.value = data.value;
 
@@ -25,9 +28,6 @@ const submitForm = async () => {
 			proModalStore.onOpen();
 		}
 	}
-
-	isLoading.value = false;
-	prompt.value = "";
 };
 </script>
 

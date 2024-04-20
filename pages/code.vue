@@ -22,6 +22,9 @@ const submitForm = async () => {
 		},
 	});
 
+	isLoading.value = false;
+	prompt.value = "";
+
 	if (data.value) {
 		messages.value = [
 			...messages.value,
@@ -40,9 +43,6 @@ const submitForm = async () => {
 			proModalStore.onOpen();
 		}
 	}
-
-	isLoading.value = false;
-	prompt.value = "";
 };
 </script>
 
